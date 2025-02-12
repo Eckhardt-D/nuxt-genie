@@ -2,6 +2,8 @@ import type { Client } from '@libsql/client'
 import type OpenAI from 'openai'
 import { consola } from 'consola'
 
+const MODEL = Bun.env.OPENAI_MODEL as 'gpt-4o' // satisfy TS
+
 export type Chat = OpenAI.Chat.Completions.ChatCompletionMessageParam[]
 
 export async function getEmbeddings(llm: OpenAI, input: string) {
@@ -52,7 +54,7 @@ export class Expert {
     )
 
     const response = await this.llm.chat.completions.create({
-      model: 'gpt-3.5-turbo',
+      model: MODEL,
       messages: [
         { role: 'system', content: this.system_prompt },
         { role: 'user', content: `${combined_questions}\n\ncontext: ${context}` },
@@ -110,7 +112,7 @@ export class Coder {
     <question3>\n`
 
     const response = await this.llm.chat.completions.create({
-      model: 'gpt-3.5-turbo',
+      model: MODEL,
       messages: [
         { role: 'system', content: 'You are an assistant that asks questions '
           + 'about Nuxt.js to learn more so you can help the developer. At your '
@@ -132,7 +134,7 @@ export class Coder {
 
     const response = await this.llm.chat.completions.create({
       stream: true,
-      model: 'gpt-3.5-turbo',
+      model: MODEL,
       // @ts-expect-error some missing properties
       messages,
     })
