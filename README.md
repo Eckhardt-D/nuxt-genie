@@ -22,7 +22,14 @@ After building a Single File executable:
 
         bun run build
 
-        ./nuxt-genie "Generate a dropdown component with a material design theme that lists products and add it to the home page."
+        ./dist/nuxt-genie "Generate a dropdown component with a material design theme that lists products and add it to the home page."
+
+You can add the binary to your PATH to make it simpler to run.
+
+        export PATH=$PATH:<path-to-root-folder>/dist
+
+> [!NOTE]
+> The built binary still requires you to run a libsql server on port 8080 with the nuxt vectors from the [Seed](#seeding-the-database-with-nuxt-vectors) section.
 
 In the example above the prompt is optional, if not provided the CLI will ask you for it.
 
