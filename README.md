@@ -48,14 +48,11 @@ In the example above the prompt is optional, if not provided the CLI will ask yo
 
 # Seeding the database with Nuxt vectors
 
-A bit manual right now, but will make a bash script for it:
+This script will download the nuxt repo, extract the docs and put it in ./nuxt-docs
 
-- Download and unzip [Nuxt](https://github.com/nuxt/nuxt)
-- Move or copy the docs into `/nuxt-docs`
+        ./seed.sh
 
-        cp -r nuxt-main/docs/* ./nuxt-docs/
-
-- Make sure the libsql is started and run the seed of the database, have a look at src/generate-embeddings.ts for more info.
+Make sure the libsql is started and run the seed of the database, have a look at src/generate-embeddings.ts for more info.
 
 > [!WARNING]
 > This command creates a lot of data like (1GB) and will take a while and some OpenAI credits to run.
