@@ -14,7 +14,17 @@ opportunities here to possibly also vectorize example code, modules etc.
 
 This is mostly for fun and not complete yet, but the command to prompt the agents are:
 
+In development:
+
         bun prompt "Generate a dropdown component with a material design theme that lists products and add it to the home page."
+
+After building a Single File executable:
+
+        bun run build
+
+        ./nuxt-genie "Generate a dropdown component with a material design theme that lists products and add it to the home page."
+
+In the example above the prompt is optional, if not provided the CLI will ask you for it.
 
 ## Getting started
 
@@ -43,9 +53,7 @@ A bit manual right now, but will make a bash script for it:
 - Download and unzip [Nuxt](https://github.com/nuxt/nuxt)
 - Move or copy the docs into `/nuxt-docs`
 
-
         cp -r nuxt-main/docs/* ./nuxt-docs/
-
 
 - Make sure the libsql is started and run the seed of the database, have a look at src/generate-embeddings.ts for more info.
 
@@ -53,6 +61,4 @@ A bit manual right now, but will make a bash script for it:
 > This command creates a lot of data like (1GB) and will take a while and some OpenAI credits to run.
 
         npm run generate:embeddings
-
-
 
