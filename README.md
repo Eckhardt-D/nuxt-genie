@@ -14,7 +14,24 @@ opportunities here to possibly also vectorize example code, modules etc.
 
 This is mostly for fun and not complete yet, but the command to prompt the agents are:
 
+In development:
+
         bun prompt "Generate a dropdown component with a material design theme that lists products and add it to the home page."
+
+After building a Single File executable:
+
+        bun run build
+
+        ./dist/nuxt-genie "Generate a dropdown component with a material design theme that lists products and add it to the home page."
+
+You can add the binary to your PATH to make it simpler to run.
+
+        export PATH=$PATH:<path-to-root-folder>/dist
+
+> [!NOTE]
+> The built binary still requires you to run a libsql server on port 8080 with the nuxt vectors from the [Seed](#seeding-the-database-with-nuxt-vectors) section.
+
+In the example above the prompt is optional, if not provided the CLI will ask you for it.
 
 ## Getting started
 
@@ -38,21 +55,14 @@ This is mostly for fun and not complete yet, but the command to prompt the agent
 
 # Seeding the database with Nuxt vectors
 
-A bit manual right now, but will make a bash script for it:
+This script will download the nuxt repo, extract the docs and put it in ./nuxt-docs
 
-- Download and unzip [Nuxt](https://github.com/nuxt/nuxt)
-- Move or copy the docs into `/nuxt-docs`
+        ./seed.sh
 
-
-        cp -r nuxt-main/docs/* ./nuxt-docs/
-
-
-- Make sure the libsql is started and run the seed of the database, have a look at src/generate-embeddings.ts for more info.
+Make sure the libsql is started and run the seed of the database, have a look at src/generate-embeddings.ts for more info.
 
 > [!WARNING]
 > This command creates a lot of data like (1GB) and will take a while and some OpenAI credits to run.
 
         npm run generate:embeddings
-
-
 

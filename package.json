@@ -1,20 +1,31 @@
 {
-  "name": "docs",
-  "module": "index.ts",
+  "name": "nuxt-genie",
+  "version": "0.0.2",
   "type": "module",
+  "private": true,
+  "module": "index.ts",
   "scripts": {
+    "build": "bun build ./index.ts --compile --outfile dist/nuxt-genie",
+    "lint": "eslint .",
+    "fix": "eslint --fix .",
     "generate:embeddings": "bun src/generate-embeddings.ts",
     "prompt": "bun run index.ts -- "
-  },
-  "devDependencies": {
-    "@types/bun": "latest"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
   },
   "dependencies": {
     "@libsql/client": "^0.14.0",
+    "citty": "^0.1.6",
+    "consola": "^3.4.0",
     "libsql": "^0.5.0-pre.6",
+    "marked": "^15.0.0",
+    "marked-terminal": "^7.3.0",
     "openai": "^4.83.0"
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "^4.2.0",
+    "@types/bun": "latest",
+    "eslint": "^9.20.1"
   }
 }
