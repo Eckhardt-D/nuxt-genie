@@ -71,16 +71,16 @@ export class Expert {
 
 export class Coder {
   private llm: OpenAI
-  private expert: Expert
+  private dbClient: Client
+  private expert: Expert | undefined
 
-  // Unused for now, will be used to store the chat history so we can keep on
-  // talking to the same 'Coder' with a history.
-  //
-  // private activeChat: Chat;
-
-  constructor(llm: OpenAI, expert: Expert) {
+  constructor(llm: OpenAI, dbClient: Client, expertMode = false) {
     this.llm = llm
-    this.expert = expert
+    this.dbClient = dbClient
+
+    if (expertMode) {
+      this.expert = new Expert(llm, this.dbClient)
+    }
   }
 
   private system_prompt = `
@@ -95,7 +95,7 @@ export class Coder {
   as much as you can and always use the latest Nuxt.js features. You are a master of the Nuxt.js ecosystem.
   Do not provide long explanations. The developer is familiar with the basics of Nuxt.js.
   Your knowledge is solely based on Vue.js, Nuxt.js, Nitro, the Unjs ecosystem and the provided context from
-  the expert. Do not hallucinate any code.
+  the expert. Do not hallucinate any code. The output is Markdown and code blocks should be marked only with the language and not any other string.
   `
 
   private async generateQuestions(prompt: string) {
@@ -145,14 +145,28 @@ export class Coder {
     }
   }
 
-  async getResponse(prompt: string, messageHistory?: Chat) {
-    const questions = await this.generateQuestions(prompt)
-
-    if (questions === undefined) {
-      consola.warn(`Failed to generate questions for prompt, response may be inaccurate.`)
+  private async getResponseWithExpert(prompt: string, questions: string[], messageHistory?: Chat) {
+    if (this.expert === undefined) {
+      throw new Error('Expert mode was not enabled. Cannot query the expert.')
     }
 
-    const answers = await this.expert.getAnswers(questions ?? [])
+    const answers = await this.expert.getAnswers(questions)
     return await this.generateFinalOutput(prompt, answers, messageHistory)
+  }
+
+  async getResponse(prompt: string, messageHistory?: Chat) {
+    if (this.expert) {
+      const questions = await this.generateQuestions(prompt)
+
+      if (questions === undefined) {
+        consola.warn(`Failed to generate questions for prompt, response may be inaccurate.`)
+      }
+
+      return await this.getResponseWithExpert(prompt, questions ?? [], messageHistory)
+    }
+
+    const embeddings = await getEmbeddings(this.llm, prompt)
+    const context = await queryDatabase(embeddings, this.dbClient)
+    return await this.generateFinalOutput(prompt, context, messageHistory)
   }
 }
