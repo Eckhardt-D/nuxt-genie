@@ -1,10 +1,11 @@
 import type { Chat } from './src/agents'
 import { createClient } from '@libsql/client'
-import { defineCommand, runMain } from 'citty'
+import { defineCommand, runMain, showUsage } from 'citty'
 import { consola } from 'consola'
-
 import OpenAI from 'openai'
-import { Coder, Expert } from './src/agents'
+
+import pkg from './package.json' with {type: 'json'}
+import { Coder } from './src/agents'
 import { ansi } from './src/ansi'
 
 const llm = new OpenAI({
@@ -20,7 +21,7 @@ const client = createClient({
 const main = defineCommand({
   meta: {
     name: 'nuxt-genie',
-    version: '0.0.1',
+    version: pkg.version,
     description: 'A Nuxt.js coding assistant',
   },
   args: {
@@ -30,9 +31,35 @@ const main = defineCommand({
       valueHint: 'e.g. generate a Nuxt.js component that displays a list of products that are selectable',
       description: 'Prompt to generate Nuxt.js code or get assistance with Nuxt.js',
     },
+    expert: {
+      type: 'boolean',
+      default: false,
+      alias: 'e',
+      description: '(default=false) Whether the coder agent should ask the expert agent for help',
+    },
+    version: {
+      type: 'boolean',
+      alias: 'v',
+      description: 'Show the version number',
+    },
+    help: {
+      type: 'boolean',
+      alias: 'h',
+      description: 'Show this help message',
+    },
   },
   async run({ args }) {
     const messageHistory: Chat = []
+
+    if (args.version) {
+      consola.info(`Nuxt Genie Version: ${pkg.version}`)
+      return
+    }
+
+    if (args.help) {
+      consola.info(showUsage(main))
+      return
+    }
 
     while (true) {
       const prompt = args.prompt ?? await consola.prompt('What can Nuxt Genie help you with today?', {
@@ -44,7 +71,7 @@ const main = defineCommand({
         return
       }
 
-      const coderAgent = new Coder(llm, new Expert(llm, client))
+      const coderAgent = new Coder(llm, client, args.expert)
 
       consola.start('Generating Nuxt.js code...')
       const response = await coderAgent.getResponse(
@@ -56,6 +83,8 @@ const main = defineCommand({
 
       let final = ''
       let line = ''
+      let inCodeBlock = false
+      let inScriptBlock = false
 
       while (true) {
         const { done, value } = await reader.read()
@@ -73,8 +102,25 @@ const main = defineCommand({
           final += content
           line += content
 
+          if (line.match(/```/)) {
+            inCodeBlock = !inCodeBlock
+          }
+
+          if (inCodeBlock && line.match(/<\/?script/)) {
+            inScriptBlock = !inScriptBlock
+          }
+
           if (line.match(/\n$/)) {
-            Bun.stdout.write(ansi(`${line.replace(/(\n\n)/, '\n')}`))
+            const pretty = ansi(line)
+
+            if (!inCodeBlock || inScriptBlock) {
+              Bun.stdout.write(pretty)
+            }
+
+            else {
+              Bun.stdout.write(pretty.replace(/\n{2,}/g, '\n'))
+            }
+
             line = ''
           }
         }

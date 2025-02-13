@@ -18,9 +18,18 @@ marked.setOptions({
 
 marked.use({
   hooks: {
-    preprocess(text) {
-      // Use HTML for vue for now..
-      return text.replace(/```vue/g, '```html')
+    processAllTokens(tokens) {
+      for (const token of tokens) {
+        if (token.type === 'code') {
+          if (token.lang === 'vue') {
+            token.lang = 'html'
+          }
+          else if (!['html', 'css', 'js', 'javascript', 'ts', 'typescript', 'bash', 'shell', 'sh', 'markdown', 'md'].includes(token.lang)) {
+            token.lang = 'bash'
+          }
+        }
+      }
+      return tokens
     },
   },
 })

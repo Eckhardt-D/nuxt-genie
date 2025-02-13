@@ -3,7 +3,7 @@ import OpenAI from 'openai'
 
 const ai = new OpenAI({
   fetch: Bun.fetch,
-  apiKey: process.env.LLM_API_KEY,
+  apiKey: Bun.env.LLM_API_KEY,
 })
 
 const client = createClient({
@@ -39,6 +39,8 @@ const slice = 2048
 
 for (const filepath of files) {
   const contents = await Bun.file(filepath).text()
+
+  // eslint-disable-next-line regexp/no-super-linear-backtracking
   const match = contents.match(/---\ntitle:\s*(.+)\n/)
 
   if (match) {
@@ -65,7 +67,7 @@ for (const filepath of files) {
         encoding_format: 'float',
       })
 
-      console.log({ tokens_used: embedding.usage.total_tokens })
+      Bun.stdout.write(`tokens_used: ${embedding.usage.total_tokens}\n`)
 
       const fl = new Float32Array(embedding.data[0].embedding)
       const result = await client.execute({
@@ -77,7 +79,7 @@ for (const filepath of files) {
         args: [fl.buffer, filename!, title, input],
       })
 
-      console.log({ inserted: result.rowsAffected })
+      Bun.stdout.write(`rows inserted: ${result.rowsAffected}\n`)
 
       // Respect the server a bit :D
       await Bun.sleep(90)
