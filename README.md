@@ -6,6 +6,10 @@ This was an exploration in adapting the [STORM](https://arxiv.org/pdf/2402.14207
 
 The RAG data is pulled from [Nuxt](https://github.com/nuxt/nuxt) docs and there are some opportunities here to possibly also vectorize example code, modules etc.
 
+
+https://github.com/user-attachments/assets/406d5150-004d-476f-af67-1eed9b90444a
+
+
 ## Getting started
 
 - Clone the repo
